@@ -10,7 +10,7 @@ contract Shop {
         uint money;
     }
 
-    Good[100] public goods;
+    Good[] public goods;
     uint public num;
     mapping(address => uint) public bal;
 
@@ -18,14 +18,19 @@ contract Shop {
         num = 0;
     }
 
+    event coming(uint,uint,uint256);
 
     function createGood(uint price) public returns (uint){
-        goods[num].id = num;
-        goods[num].owner = msg.sender;
-        goods[num].price = price;
-        goods[num].state = 0;
-        goods[num].money = 0;
+        goods.push(Good({
+            id : num,
+            owner : msg.sender,
+            buyer : 0,
+            price : price,
+            state : 0,
+            money : 0
+        }));
         num ++;
+        emit coming(num-1,price,now);
         return num-1;
     }
 
@@ -69,7 +74,15 @@ contract Shop {
     }
 
     function getGoods(uint id) public returns (uint,address,address,uint,uint,uint) {
+        require(id <= num);
         Good storage goodgood = goods[id];
         return (goodgood.id,goodgood.owner,goodgood.buyer,goodgood.price,goodgood.state,goodgood.money);
+    }
+
+    function change(uint id, uint price) public {
+        require(goods[id].owner == msg.sender);
+        require(price > 0);
+        goods[id].price = price;
+        emit coming(id,price,now);
     }
 }

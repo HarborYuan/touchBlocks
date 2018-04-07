@@ -29,6 +29,7 @@ function buy(user , id , price) {
         Shop.buy(id,{from : web3.eth.accounts[user], value : price, gas : 300000});
         return 0;
     } catch(e) {
+	//console.log(e);
         return -1;
     }
 }
@@ -76,25 +77,41 @@ function getall() {
         let answer =  Shop.getGoods.call(i);
         tmp['id'] = answer[0].toNumber();
         //tmp['owner'] = answer[1];
-        for (let j=0; j<accounts.length; j++){
+        for (let j=0; j<=accounts.length; j++){
             if (answer[1] == accounts[j]) {
                 tmp['owner'] = j;
             }
         }
-        if (!tmp['owner']) {tmp['owner']=-1;}
+        if (!tmp['owner']) {tmp['owner']=0;}
         //tmp['buyer'] = answer[2];
-        for (let j=0; j<accounts.length; j++){
+        for (let j=0; j<=accounts.length; j++){
             if (answer[2] == accounts[j]) {
                 tmp['buyer'] = j;
             }
         }
-        if (!tmp['buyer']) {tmp['buyer']=-1;}
+        if (!tmp['buyer']) {tmp['buyer']=0;}
         tmp['price'] = answer[3].toNumber();
         tmp['state'] = answer[4].toNumber();
         tmp['money'] = answer[5].toNumber();
         ans.push(tmp);
     }
     return ans;
+}
+
+function change(user, id, price) {
+    try{
+        return Shop.change(id, price , {from : web3.eth.accounts[user], gas : 300000});
+    } catch(e) {
+        return -1;
+    }
+}
+
+function getEvents() {
+    let events = Shop.allEvents();
+    events.get(function(error, event){
+        if (!error)
+            console.log(event);
+    });
 }
 
 exports.createGood = createGood;
@@ -105,6 +122,8 @@ exports.getback = getback;
 exports.getNum = getNum;
 exports.getall = getall;
 exports.ether = ether;
+exports.change = change;
+exports.getEvents = getEvents;
 
 /*
 console.log(createGood(8,10*ether));
